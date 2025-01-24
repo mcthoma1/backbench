@@ -4,7 +4,8 @@ title: Proposal
 ---
 
 # Project Summary
-## Summary of the Project
+---
+## Part 2.2: Summary of the Project
 
 ### **Main Idea**
 We want to create an AI agent that is able to play blackjack in an efficient manner.
