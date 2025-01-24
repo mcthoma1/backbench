@@ -49,3 +49,9 @@ The AI agent can be used in:
 ---
 
 ## Part 2.5: Meet the Instructor
+- Booked an appointment
+
+---
+
+## Part 2.6: AI tool usage 
+- We used AI tools to further research on the game and the different techniques used to play the game and how we can implement the agent to use these techniques through algorithms. 
