@@ -46,6 +46,3 @@ The AI agent can be used in:
 ### **Reward Function Evaluation:**
 - Track how the reward function evolves throughout the game based on the AI agent’s decisions and compare it against optimal strategy.
 
----
-
-## Part 2.5: Meet the Instructor
