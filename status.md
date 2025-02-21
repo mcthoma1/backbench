@@ -4,6 +4,7 @@ title: Status
 ---
 
 ## Project Summary:
+Our project explores applying Proximal Policy Optimization (PPO) to the classic Snake game. The main snake learns to collect food for positive rewards while avoiding bombs and a randomly moving secondary snake. 
 
 ## Approach:
 
@@ -38,3 +39,11 @@ The snake gets points in this manner:
 The training occurs through PPO agent from Stable-Baselines3, Tensorboard integrations and tuned hyperparameters (subject to change to make the snake better): Learning rate: 0.001, Number of steps per rollout: 2048, Batch size: 128, Epochs per update: 20, Discount factor: 0.99, Clipping range for stable updates: 0.5
 
 We trained the snake for 1 million timesteps and we saw the output through tensorboard. There are policy updates to improve the performance of the snake. 
+
+## Evaluation:
+📈 Quantitative Analysis
+There are two key factors for quantitatively evaluating our model: survival time and average score. All of our agents, trained with different hyperparameters, demonstrate varying average scores (rewards) and survival times. The following graph shows the progress of training episodes: Reward trends over multiple training episodes.
+![Chart Screenshot](docs/screenshots/chart.png) 
+
+🧐 Qualitative Analysis
+Through the observation, we discovered that none of our models significantly increased their average score between 500k and 1M timesteps. To facilitate better analysis, we decide to limit for future training within 1M timesteps to focus on meaningful improvements in performance.
