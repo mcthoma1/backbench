@@ -11,7 +11,7 @@ title:  Team
 
 ## Ahmad R Haidari
 ***UCI Net ID***: arhaidar
-![Team Screenshot](screenshots/snake.png)  
+![Team Screenshot](screenshots/ahmad.png)  
 
 ## Michael C Thomas 
 ***UCI Net ID***: mcthoma1
