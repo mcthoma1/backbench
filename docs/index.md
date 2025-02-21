@@ -2,26 +2,28 @@
 layout: default
 title:  Home
 ---
-# Welcome to [RL in snake!]
+# 🐍 SUPERSNAKE – AI-Powered Reinforcement Learning
+
+**SUPERSNAKE** is an super advanced Snake AI using **reinforcement learning**. Through Proximal policy optimization(PPO) and strategic reward providing, the SUPERSNAKE learns to navigate, grow, and maximize its score while avoiding collisions and randomized booms. Our goal is to develop an efficient agent that develop regular Snake into SUPER-SNAKE beyond a superhuman level.
 
 - 📂 **Source Code**: https://github.com/USER/PROJECT (_fix this_)
 
-[Project Name] is a [brief description of your project, e.g., "web-based AI-powered scheduling assistant that optimizes class schedules based on rank and availability"]. This project leverages [technologies used, e.g., "React, Node.js, and Firebase"] to provide an efficient and user-friendly experience. Below, you'll find links to our source code, reports, and relevant resources.
-
 ## 🔗 Project Links
 
-- 📄 **Project Reports**:
-- [Proposal](proposal.html)
-- [Status](status.html)
-- [Final](final.html)
+📄 **Project Reports**:
+    - [Proposal](proposal.html)
+    - [Status](status.html)
+    - [Final](final.html)
 
 ## 🖼️ Screenshots & Media
 
-![Project Screenshot](images/screenshot.png)  
-_A brief caption explaining the image above._
+![Project Screenshot](screenshots/snake.png)  
+_A sample screenshot of SUPERSNAKE in action._
 
 ## 🔍 References & Resources
 
-- [Technology Stack Used](#) (_Replace with actual links_)
-- [Relevant Research Papers](#) (_Replace with actual links_)
-- [Tutorials & Guides](#) (_Replace with actual links_)
+- **Reinforcement Learning**: Proximal policy optimization(PPO)
+- **Libraries Used**: TensorFlow/PyTorch, OpenAI Gymnasium, NumPy, Pygame, Matplotlib
+- **Training Approach**: Reward-based optimization for strategic movement
+- **Game Mechanics**: Implemented using pygame, featuring randomized obstacles and dynamic environments
+
