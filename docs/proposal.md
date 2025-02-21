@@ -4,6 +4,7 @@ title: Proposal
 ---
 
 # Project Summary
+## NOTE: Project Topic Changed from Blackjack to Snake
 ---
 ## Part 2.2: Summary of the Project
 
