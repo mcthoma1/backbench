@@ -6,7 +6,7 @@ title:  Home
 
 **SUPERSNAKE** is an super advanced Snake AI using **reinforcement learning**. Through Proximal policy optimization(PPO) and strategic reward providing, the SUPERSNAKE learns to navigate, grow, and maximize its score while avoiding collisions and randomized booms. Our goal is to develop an efficient agent that develop regular Snake into SUPER-SNAKE beyond a superhuman level.
 
-- 📂 **Source Code**: [./soure_code](./soure_code/)
+- 📂 **Source Code**: [./source_code](./soure_code/)
 
 ## 🔗 Project Links
 
