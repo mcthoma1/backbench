@@ -47,3 +47,13 @@ There are two key factors for quantitatively evaluating our model: survival time
 
 🧐 Qualitative Analysis
 Through the observation, we discovered that none of our models significantly increased their average score between 500k and 1M timesteps. To facilitate better analysis, we decide to limit for future training within 1M timesteps to focus on meaningful improvements in performance.
+
+
+## Remaining Goals and Challenges
+We want to the make the environment more stochastic and challenging for the snake. At the moment, we are thinking of adding more snakes to the board to make the game more unpredictable. Adding more snakes would make it more difficult for the agent to navigate to the food. This will allow the agent to be better trained to have better strategy in avoiding the other snakes and finding a better path to the food. 
+
+We also are planning on adding more bombs in the board so that is more risky for the agent. This will allow us to see whether the agent will prioritize safety over food or vice versa. We also plan on starting the game with random spawn locations and changing the conditions of episodes of training.
+
+Some possible things that we are still discussing about are balancing out the risk and safety when the agent is being trained and to prevent the environment from being unstable when increasing stochasity. 
+
+These changes will allow to showcase the strengths of reinforcement learning in an unpredictable environment. 
