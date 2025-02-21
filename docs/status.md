@@ -3,7 +3,7 @@ layout: default
 title: Status
 ---
 
-https://www.youtube.com/watch?v=kN5KBfjUJuc
+[![Video Title](https://i9.ytimg.com/vi_webp/kN5KBfjUJuc/mq1.webp?sqp=CJyN5L0G-oaymwEmCMACELQB8quKqQMa8AEB-AH-CYAC0AWKAgwIABABGGUgZShlMA8=&rs=AOn4CLBjpbKxviMIInzu0xxOUP8qC51otw)](https://www.youtube.com/watch?v=kN5KBfjUJuc)
 
 ## Project Summary:
 Our project explores applying Proximal Policy Optimization (PPO) to the classic Snake game. The main snake learns to collect food for positive rewards while avoiding bombs and a randomly moving secondary snake. 
