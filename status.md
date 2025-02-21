@@ -6,6 +6,7 @@ title: Status
 ## Project Summary:
 
 ## Approach:
+
 ### Algorithm
 We used PPO (Proximal Policy Optimization) as our Reinforcement learning approach which is a widely used policy gradient algorithm that aims to train an agent by making small, controlled updates to its policy, ensuring stability and preventing large deviations from its previous behavior while still optimizing for maximum reward in an environment.The policy's usage in a continous chanign environement was the reason why we implemented it in the snake game. The policy would be trained by having it learn through multiple experiences in the timesteps.
 
@@ -16,3 +17,24 @@ The algorithm checks whether the next decision is good or not and then compares 
 - Other snake: The other snake is hard coded and moves randomly. Our future plan is to train the snake on a fixed policy.
 - Food: Gives the agent snake reward and increases the score of the snake 
 - Bomb: Terminates the snake and the learning session when touched by the agent snake.
+
+### State Space Representation: 
+The agent gets information about its surrounding through following things: 
+- position of the food and bomb compared to the head of the snake
+- which way the snake is facing
+- position of second snake compared to the main snake 
+- length of the main snake
+
+### Action Space 
+The agent has three actions which are go straight, turn left, and turn right 
+
+### Reward Function
+The snake gets points in this manner: 
+- gets points for touching food
+- loses points for touching the other snake or the bomb 
+- the snake gets small penalties to encourage efficient movement 
+
+### Training 
+The training occurs through PPO agent from Stable-Baselines3, Tensorboard integrations and tuned hyperparameters (subject to change to make the snake better): Learning rate: 0.001, Number of steps per rollout: 2048, Batch size: 128, Epochs per update: 20, Discount factor: 0.99, Clipping range for stable updates: 0.5
+
+We trained the snake for 1 million timesteps and we saw the output through tensorboard. There are policy updates to improve the performance of the snake. 
