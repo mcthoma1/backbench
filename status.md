@@ -57,3 +57,4 @@ We also are planning on adding more bombs in the board so that is more risky for
 Some possible things that we are still discussing about are balancing out the risk and safety when the agent is being trained and to prevent the environment from being unstable when increasing stochasity. 
 
 These changes will allow to showcase the strengths of reinforcement learning in an unpredictable environment. 
+
