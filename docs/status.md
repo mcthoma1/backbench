@@ -43,7 +43,7 @@ We trained the snake for 1 million timesteps and we saw the output through tenso
 ## Evaluation:
 📈 Quantitative Analysis
 There are two key factors for quantitatively evaluating our model: survival time and average score. All of our agents, trained with different hyperparameters, demonstrate varying average scores (rewards) and survival times. The following graph shows the progress of training episodes: Reward trends over multiple training episodes.
-![Chart Screenshot](docs/screenshots/chart.png) 
+![Chart Screenshot](screenshots/chart.png) 
 
 🧐 Qualitative Analysis
 Through the observation, we discovered that none of our models significantly increased their average score between 500k and 1M timesteps. To facilitate better analysis, we decide to limit for future training within 1M timesteps to focus on meaningful improvements in performance.
@@ -56,4 +56,18 @@ We also are planning on adding more bombs in the board so that is more risky for
 
 Some possible things that we are still discussing about are balancing out the risk and safety when the agent is being trained and to prevent the environment from being unstable when increasing stochasity. 
 
-These changes will allow to showcase the strengths of reinforcement learning in an unpredictable environment. 
+These changes will allow to showcase the strengths of reinforcement learning in an unpredictable environment.
+
+## Resources Used:
+- https://www.youtube.com/watch?v=L8ypSXwyBds : Explained how reinforcement learning can be used to play snake game and inspired us on how to structure teh environement and objects
+- https://github.com/patrickloeber/snake-ai-pytorch : guided on to train agents in a snake game using reinforcement learning through pytorch
+- https://medium.com/deeplearningmadeeasy/simple-ppo-implementation-e398ca0f2e7c : Taught us the basics of PPO and how it is used to optimize policy updates when training 
+- https://sohum-padhye.medium.com/building-a-reinforcement-learning-agent-that-can-play-rocket-league-5df59c69b1f5: guided us on how to train agents in complex environments and high stochasity in deep reinforcement learning models
+- https://papers-100-lines.medium.com/reinforcement-learning-ppo-in-just-100-lines-of-code-1f002830cff4: explained to us the core concept of PPO through simple implementations of the policy 
+- https://medium.com/@nancy.q.zhou/teaching-an-ai-to-play-the-snake-game-using-reinforcement-learning-6d2a6e8f3b1c: taught us how we can use the reward system in the snake game to improve the performance of the agent 
+- Stable-Baselines3: Used for implementing PPO and managing policy updates.
+- Gymnasium: Used the API to build the environment for the snake game.
+- PyTorch: used for deep learning of the PPO approach.
+- Matplotlib: Helped visualize training performance and results.
+- TensorBoard: Used for logging and tracking model improvements.
+- We used AI as a valuable learning source. We used AI models like chatGPT, research papers, and documentations to understand difficult concepts in reinforcement learning and PPO, fix errors and issues with our implementation, and improve our approach to solving the problems. It assisted us by allowing us to compare our ideas with other ideas and approaches, explaining complex ideas, and validate our implementations and appraoches. This allowed us to learn and understand how we could better tune our hyperparameters, structure our environments and other parts of the model, and make good decisions on our strategy in the project. 

@@ -24,6 +24,6 @@ _A sample screenshot of SUPERSNAKE in action._
 
 - **Reinforcement Learning**: Proximal policy optimization(PPO)
 - **Libraries Used**: TensorFlow/PyTorch, OpenAI Gymnasium, NumPy, Pygame, Matplotlib
-- **Training Approach**: Reward-based optimization for strategic movement
-- **Game Mechanics**: Implemented using pygame, featuring randomized obstacles and dynamic environments
+- **Training Approach**: Reward based optimization
+- **Game Mechanics**: Implemented using pygame, featuring randomized obstacles and dynamic environments(for future version)
 
