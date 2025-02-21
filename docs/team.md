@@ -5,12 +5,14 @@ title:  Team
 
 # {{ page.title }}
 
-
-## USER 1
+## Mingi T Kwon
 ***UCI Net ID***: mingik5
+![Team Screenshot](screenshots/mingi.jpg)  
 
-## USER 2
+## Ahmad R Haidari
 ***UCI Net ID***: arhaidar
+![Team Screenshot](screenshots/ahmad.png)  
 
-## USER 3
+## Michael C Thomas 
 ***UCI Net ID***: mcthoma1
+![Team Screenshot](screenshots/michael.jpg)  
