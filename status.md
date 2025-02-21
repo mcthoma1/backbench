@@ -4,6 +4,7 @@ title: Status
 ---
 
 ## Project Summary:
+Our project explores applying Proximal Policy Optimization (PPO) to the classic Snake game. The main snake learns to collect food for positive rewards while avoiding bombs and a randomly moving secondary snake. 
 
 ## Approach:
 ### Algorithm
