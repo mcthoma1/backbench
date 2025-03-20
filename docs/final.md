@@ -36,33 +36,32 @@ In our implementation, DQN was trained exclusively with a dynamic reward scheme.
 - +10×snake length
 - +10×snake length for eating food.
 − −10 for collisions (wall, self, or second snake).
-− −7 for hitting a bomb.
+− (−7) for hitting a bomb.
 - A small time penalty to discourage unnecessary delays.
 
 Another key aspect of training was the increasing number of bombs based on the agent’s success. This progressively escalated the difficulty, forcing the model to generalize its policy to handle more obstacles over time. Additionally, a second snake was introduced as a hardcoded competitor, making food collection more competitive. This added another level of environmental complexity.
 
 The disadvantage of DQN is that it only estimates a single expected reward. This makes it less robust in environments with high variability, such as ours with dynamic rewards, bombs, and a second snake. Despite this, ut still performed really well and was still comparable to QRDQN. 
 ```
-for episode in range(max_episodes):
-    state = env.reset()
-    done = False
-    while not done:
-        # Take action, observe next state and reward
-        next_state, reward, done = env.step(action)
+on step(action):
+    store the expereience in the buffer
+    
+model = DQN(
+    "MlpPolicy",
+    env,
+    verbose=1,
+    tensorboard_log="./tensorboard_snake/",
+    learning_rate=0.0003,
+    buffer_size=100000,
+    batch_size=256,
+    gamma=0.99,
+    train_freq=4,
+    gradient_steps=1,
+    exploration_fraction=0.1,
+    exploration_final_eps=0.01,
+    target_update_interval=10000, 
+)
 
-        # Store transition in replay buffer
-        replay_buffer.append((state, action, reward, next_state, done))
-
-        # Sample batch from replay buffer
-        if len(replay_buffer) > batch_size:
-            batch = sample(replay_buffer, batch_size)
-
-            # Compute target Q-values
-            Q_target = reward + gamma * max(Target_network(next_state))
-
-            # Compute loss and update Q-network
-            loss = MSE(Q_network(state, action), Q_target)
-            backpropagate(loss)  # Update Q-network
 ```
 
 
@@ -73,9 +72,14 @@ for episode in range(max_episodes):
 - https://sohum-padhye.medium.com/building-a-reinforcement-learning-agent-that-can-play-rocket-league-5df59c69b1f5: guided us on how to train agents in complex environments and high stochasity in deep reinforcement learning models
 - https://papers-100-lines.medium.com/reinforcement-learning-ppo-in-just-100-lines-of-code-1f002830cff4: explained to us the core concept of PPO through simple implementations of the policy 
 - https://medium.com/@nancy.q.zhou/teaching-an-ai-to-play-the-snake-game-using-reinforcement-learning-6d2a6e8f3b1c: taught us how we can use the reward system in the snake game to improve the performance of the agent 
-- Stable-Baselines3: Used for implementing PPO and managing policy updates.
-- Gymnasium: Used the API to build the environment for the snake game.
-- PyTorch: used for deep learning of the PPO approach.
-- Matplotlib: Helped visualize training performance and results.
-- TensorBoard: Used for logging and tracking model improvements.
-- We used AI as a valuable learning source. We used AI models like chatGPT, research papers, and documentations to understand difficult concepts in reinforcement learning and PPO, fix errors and issues with our implementation, and improve our approach to solving the problems. It assisted us by allowing us to compare our ideas with other ideas and approaches, explaining complex ideas, and validate our implementations and appraoches. This allowed us to learn and understand how we could better tune our hyperparameters, structure our environments and other parts of the model, and make good decisions on our strategy in the project. 
+- https://stable-baselines3.readthedocs.io/en/v0.11.1/modules/dqn.html#notes 
+- https://sb3-contrib.readthedocs.io/en/master/modules/qrdqn.html
+- https://github.com/Stable-Baselines-Team/stable-baselines3-contrib?tab=readme-ov-file
+- 
+- *Stable-Baselines3*: Used for implementing PPO, DQN and managing policy updates.
+- *SB3_contrib*: Used for QR-DQN.
+- *Gymnasium*: Used the API to build the environment for the snake game.
+- *PyTorch*: used for deep learning of the PPO approach.
+- *Matplotlib*: Helped visualize training performance and results.
+- *TensorBoard*: Used for logging and tracking model improvements.
+- We used AI as a valuable learning source. We used AI models like chatGPT, research papers, and documentations to understand difficult concepts in reinforcement learning, PPO, and DQN/QRDQN, fix errors and issues with our implementation, and improve our approach to solving the problems. It assisted us by allowing us to compare our ideas with other ideas and approaches, explaining complex ideas, and validate our implementations and appraoches. This allowed us to learn and understand how we could better tune our hyperparameters, structure our environments and other parts of the model, and make good decisions on our strategy in the project.  
