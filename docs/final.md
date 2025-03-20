@@ -22,7 +22,7 @@ Figure 1.0: Picture of how the snake game worked
 - Blue Snake: Agent
 - Yellow Snake: Second Snake (competitor)
 - Green squares: bombs
-- Red bombs: food
+- Red squares: food
 
 ## Aproaches
 We compare a baseline (PPO with a single bomb) and more advanced approaches, including QR-DQN (static vs. dynamic reward) and DQN (dynamic reward). The environment complexity includes a dynamic number of bombs and an additional hardcoded competitive snake.
