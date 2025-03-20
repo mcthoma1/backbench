@@ -23,9 +23,9 @@ We compare a baseline (PPO with a single bomb) and more advanced approaches, inc
 ### Baseline: PPO with a Single Bomb
 
 ## DQN (Deep Q-Network):
-Deep Q-Network (DQN) is a reinforcement learning algorithm that extends Q-learning by using a neural network to approximate the Q-values instead of maintaining a Q-table. This allows DQN to scale to high-dimensional state spaces, making it well-suited for environments like Snake, where the state is represented as a 15-dimensional feature vector rather than a discrete grid. DQN learns the expected cumulative reward for each action and updates its Q-values using experience replay and a target network to stabilize training.
+Deep Q-Network (DQN) is a reinforcement learning algorithm that extends Q-learning by using a neural network to approximate the Q-values. This allows DQN to scale to high-dimensional state spaces, making it suiitable for environments like our customs Snake, where the state is represented as a 15-dimensional feature vector rather than a discrete grid. DQN learns the expected cumulative reward for each action and updates its Q-values using experience replay and a target network to stabilize training.
 
-Our DQN model was primiarily trained with a dynamic reward scheme. Unlike a static reward system, where food collection always yields a fixed reward, dynamic rewards scale with the snake’s length. This encourages longer survival and riskier strategies as the game progresses. Specifically, the agent receives:
+Our DQN model was primiarily trained with a dynamic reward scheme. The dynamic rewards scale with the snake’s length: the longer it gets, the higher the reward. This encourages longer survival and riskier strategies as the game progresses. Specifically, the agent receives:
 - +10×snake length for eating food.
 - -10 for collisions (wall, self, or second snake).
 - (−7) for hitting a bomb.
@@ -36,7 +36,7 @@ Another key aspect of training was the increasing number of bombs based on the a
 The disadvantage of DQN is that it only estimates a single expected reward. This makes it less robust in environments with high variability, such as ours with dynamic rewards, bombs, and a second snake. Despite this, ut still performed really well and was still comparable to QRDQN. 
 
 ### QRDQN (Quantile-Regression Deep Q-Network):
-Quantile Regression Deep Q-Network (QRDQN) extends the standard DQN by learning a distribution of future rewards rather than a single expected value. This approach provides a more robust way to estimate action-value functions, as it captures the uncertainty in possible returns. Instead of predicting *Q(s,a)* as a scalar, QRDQN predicts multiple quantiles of the return distribution, allowing it to model the variability in outcomes. This is particularly useful in environments with stochastic elements, such as our dynamic Snake game, where the number of bombs increases based on performance and where a second competitive snake introduces unpredictable behavior.
+QRDQN improves on the regular DQN in the sens that, instead of predicting on a single value, it predicts on a range of values. So this works great in our snake game as the number of bombs are dynamic and changes, and also the movements of the second snake makes it really challenging for the agent. 
 
 ***It's to be noted that we used the same parameters for QRDQN and DQN so it's essentially dqn but improved.***
 
