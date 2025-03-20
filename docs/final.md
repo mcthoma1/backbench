@@ -130,6 +130,10 @@ def step(self, action):
     else: reward = -10
 ```
 ## Evaluation
+
+## DQN
+we observed that the static reward was not fair since the number of bombs increased. To adjust that issue, we introduced a dynamic reward system where the agent is reward more based on the length of the snake. The output is shown below:
+
 #### DQN: Dyanmic Reward System
 <img src="./image/DQN-DynamicReward.png" alt="DQN with Dyanmic Reward System" width="300"/><br/>
 
