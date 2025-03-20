@@ -4,7 +4,8 @@ title: Final Report
 ---
 
 ## Video:
-[![Video Title](https://via.placeholder.com/640x360.png?text=Video+Thumbnail)](https://youtu.be/KmY3JyX5_js)
+[![Video Title](https://img.youtube.com/vi/KmY3JyX5_js/0.jpg)](https://youtu.be/KmY3JyX5_js)
+
 
 
 ## Project Summary:
