@@ -123,7 +123,7 @@ In our PPO approach, we observed that the model’s improvement plateaued in sta
 - https://stable-baselines3.readthedocs.io/en/v0.11.1/modules/dqn.html#notes 
 - https://sb3-contrib.readthedocs.io/en/master/modules/qrdqn.html
 - https://github.com/Stable-Baselines-Team/stable-baselines3-contrib?tab=readme-ov-file
-- 
+- https://github.com/araffin/rlss23-dqn-tutorial
 - *Stable-Baselines3*: Used for implementing PPO, DQN and managing policy updates.
 - *SB3_contrib*: Used for QR-DQN.
 - *Gymnasium*: Used the API to build the environment for the snake game.
