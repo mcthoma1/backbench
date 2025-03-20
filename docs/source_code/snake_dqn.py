@@ -64,10 +64,8 @@ class SnakeEnv(gym.Env):
         self.h = h
         self.render_mode = render_mode
 
-        # 3 discrete actions
         self.action_space = spaces.Discrete(3)
 
-        # 15-dim observation (user-chosen scaling)
         self.observation_space = spaces.Box(
             low=-1, high=1, shape=(15,), dtype=np.float32
         )
@@ -93,7 +91,6 @@ class SnakeEnv(gym.Env):
         if not hasattr(self, "episode_scores"):
             self.episode_scores = []
         
-        # Log the previous score if it exists
         if hasattr(self, "score"):
             self.episode_scores.append(self.score)
             if self.score >= self.goal_score:
@@ -106,7 +103,6 @@ class SnakeEnv(gym.Env):
                 highest_score = max(self.episode_scores)
                 log_score(f"Last 30 Episodes Avg Score: {avg_score:.2f}, Highest Score: {highest_score}")
 
-            # If we were recording, save the video
             if self.recording and self.frames:
                 self._save_video()
                 self.recording = False
@@ -116,7 +112,6 @@ class SnakeEnv(gym.Env):
             random.seed(seed)
             np.random.seed(seed)
 
-        # Main snake initialization
         self.direction = Direction.RIGHT
         self.head = Point(self.w // 2, self.h // 2)
         self.snake = [
@@ -133,7 +128,6 @@ class SnakeEnv(gym.Env):
         self.bombs = []
         self._place_bomb()
         
-        # Initialize the hardcoded snake (snake2)
         self._init_hardcoded_snake()
 
         return self._get_observation(), {}
@@ -148,7 +142,7 @@ class SnakeEnv(gym.Env):
         self._move(action)
         self.snake.insert(0, self.head)
 
-        # Collision check (including collision with snake2)
+        # Collision check 
         if self._is_collision(self.head):
             terminated = True
             reward = -10
@@ -182,20 +176,17 @@ class SnakeEnv(gym.Env):
             self.recording = True
             self.frames = []
 
-        # Update UI if recording
         if self.recording:
             self._update_ui(RECORD_SPEED)
             frame = self.render()
             self.frames.append(frame)
 
-        # End of episode: save video if needed
         if (terminated or truncated) and self.recording:
             if self.score >= self.goal_score:
                 self._save_video()
             self.recording = False
             self.frames = []
 
-        # Update the hardcoded snake (snake2) after main snake logic
         self._move_hardcoded_snake()
 
         obs = self._get_observation()
@@ -256,18 +247,15 @@ class SnakeEnv(gym.Env):
     def _is_collision(self, pt=None):
         if pt is None:
             pt = self.head
-        # Check wall collisions
         if pt.x > self.w - BLOCK_SIZE or pt.x < 0 or pt.y > self.h - BLOCK_SIZE or pt.y < 0:
             return True
-        # Check collision with itself
         if pt in self.snake[1:]:
             return True
-        # Check collision with the hardcoded snake (snake2)
         if hasattr(self, "snake2") and pt in self.snake2:
             return True
         return False
 
-    # Initialize the hardcoded snake (snake2)
+   
     def _init_hardcoded_snake(self):
         self.head2 = Point(BLOCK_SIZE * 5, BLOCK_SIZE * 5)
         self.snake2 = [
@@ -291,7 +279,7 @@ class SnakeEnv(gym.Env):
                 return True
         return False
 
-    # Hardcoded snake2 movement using a simple greedy strategy
+    # Hardcoded snake2 
     def _move_hardcoded_snake(self):
         possible_actions = [0, 1, 2]  # 0: straight, 1: right, 2: left
         best_action = None
@@ -359,11 +347,9 @@ class SnakeEnv(gym.Env):
         self.head2 = best_new_head
         self.snake2.insert(0, self.head2)
         if self.head2 == self.food:
-            # If snake2 gets the food, leave its tail and place new food
             self._place_food()
         else:
             self.snake2.pop()
-        # If snake2 somehow collides, reinitialize it to keep it in the game
         if self._is_collision_snake2(self.head2):
             self._init_hardcoded_snake()
 
@@ -377,7 +363,6 @@ class SnakeEnv(gym.Env):
             pygame.draw.rect(self.display, GREEN, (bomb.x, bomb.y, BLOCK_SIZE, BLOCK_SIZE))
 
         pygame.draw.rect(self.display, RED, (self.food.x, self.food.y, BLOCK_SIZE, BLOCK_SIZE))
-        # Draw hardcoded snake (snake2) in YELLOW
         for pt in self.snake2:
             pygame.draw.rect(self.display, YELLOW, (pt.x, pt.y, BLOCK_SIZE, BLOCK_SIZE))
             
@@ -410,13 +395,13 @@ class SnakeEnv(gym.Env):
         danger_left     = 1 if self._will_collide_if_action(2) else 0
         
         snake_len = len(self.snake) / 100.0
-        env_snake_dir_normalized = 0.0  # placeholder
+        env_snake_dir_normalized = 0.0 
 
         state = np.array([
             dx_food, dy_food,
             dx_bomb, dy_bomb,
             dir_r, dir_l, dir_u, dir_d,
-            0.0, 0.0,                  # env_dx, env_dy (unused)
+            0.0, 0.0,              
             danger_straight, danger_right, danger_left,
             snake_len,
             env_snake_dir_normalized
@@ -465,10 +450,8 @@ class SnakeEnv(gym.Env):
 if __name__ == "__main__":
     # Create environment
     env = SnakeEnv(render_mode=True)
-    env = Monitor(env)                 # Logs episodes
-    env = DummyVecEnv([lambda: env])   # Vectorize
-
-    # Optionally, use VecNormalize if desired
+    env = Monitor(env)                
+    env = DummyVecEnv([lambda: env])   
     env = VecNormalize(env, norm_obs=True, norm_reward=True, clip_obs=10.)
 
     model = DQN(

@@ -26,7 +26,7 @@ BLUE1 = (0, 0, 255)
 BLUE2 = (0, 100, 255)
 BLACK = (0, 0, 0)
 GREEN = (0, 255, 0)  # bombs
-YELLOW = (255, 255, 0)  # <-- color for second snake
+YELLOW = (255, 255, 0)  
 
 class Direction(Enum):
     RIGHT = 1
@@ -64,10 +64,8 @@ class SnakeEnv(gym.Env):
         self.h = h
         self.render_mode = render_mode
 
-        # 3 discrete actions
         self.action_space = spaces.Discrete(3)
 
-        # 15-dim observation (user-chosen scaling)
         self.observation_space = spaces.Box(
             low=-1, high=1, shape=(15,), dtype=np.float32
         )
@@ -93,7 +91,6 @@ class SnakeEnv(gym.Env):
         if not hasattr(self, "episode_scores"):
             self.episode_scores = []
         
-        # Log the previous score if it exists
         if hasattr(self, "score"):
             self.episode_scores.append(self.score)
             if self.score >= self.goal_score:
@@ -106,7 +103,6 @@ class SnakeEnv(gym.Env):
                 highest_score = max(self.episode_scores)
                 log_score(f"Last 30 Episodes Avg Score: {avg_score:.2f}, Highest Score: {highest_score}")
 
-            # If we were recording, save the video
             if self.recording and self.frames:
                 self._save_video()
                 self.recording = False
@@ -116,7 +112,6 @@ class SnakeEnv(gym.Env):
             random.seed(seed)
             np.random.seed(seed)
 
-        # Main snake init
         self.direction = Direction.RIGHT
         self.head = Point(self.w // 2, self.h // 2)
         self.snake = [
@@ -133,7 +128,6 @@ class SnakeEnv(gym.Env):
         self.bombs = []
         self._place_bomb()
         
-        # <-- Initialize the hardcoded snake (snake2)
         self._init_hardcoded_snake()
 
         return self._get_observation(), {}
@@ -177,25 +171,21 @@ class SnakeEnv(gym.Env):
                     reward = -7
                     break
 
-        # Start recording logic
         if self.score >= (self.goal_score - 5) and self.score >= 2 and not self.recording:
             self.recording = True
             self.frames = []
 
-        # Update UI if recording
         if self.recording:
             self._update_ui(RECORD_SPEED)
             frame = self.render()
             self.frames.append(frame)
 
-        # End of episode => maybe save video
         if (terminated or truncated) and self.recording:
             if self.score >= self.goal_score:  
                 self._save_video()
             self.recording = False
             self.frames = []
 
-        # <-- Update hardcoded snake (snake2) after main snake logic
         self._move_hardcoded_snake()
 
         obs = self._get_observation()
@@ -262,7 +252,6 @@ class SnakeEnv(gym.Env):
             return True
         return False
 
-    # <-- New method: Initialize the hardcoded snake (snake2)
     def _init_hardcoded_snake(self):
         self.head2 = Point(BLOCK_SIZE * 5, BLOCK_SIZE * 5)
         self.snake2 = [
@@ -272,13 +261,11 @@ class SnakeEnv(gym.Env):
         ]
         self.direction2 = Direction.RIGHT
 
-    # <-- New method: Collision check for snake2
     def _is_collision_snake2(self, pt):
         if pt.x > self.w - BLOCK_SIZE or pt.x < 0 or pt.y > self.h - BLOCK_SIZE or pt.y < 0:
             return True
         if pt in self.snake2[1:]:
             return True
-        # Also avoid colliding with the main snake and bombs
         if pt in self.snake:
             return True
         for bomb in self.bombs:
@@ -286,7 +273,6 @@ class SnakeEnv(gym.Env):
                 return True
         return False
 
-    # <-- New method: Hardcoded snake2 movement (a simple greedy strategy)
     def _move_hardcoded_snake(self):
         possible_actions = [0, 1, 2]  # 0: straight, 1: right, 2: left
         best_action = None
@@ -316,7 +302,6 @@ class SnakeEnv(gym.Env):
                 if dist < best_distance:
                     best_distance = dist
                     best_action = action
-        # If no safe action, default to straight
         if best_action is None:
             best_action = 0
             new_dir = clock_wise[idx]
@@ -354,11 +339,9 @@ class SnakeEnv(gym.Env):
         self.head2 = best_new_head
         self.snake2.insert(0, self.head2)
         if self.head2 == self.food:
-            # If snake2 gets the food, leave its tail and place new food
             self._place_food()
         else:
             self.snake2.pop()
-        # If snake2 somehow collides, reinitialize it to keep it in the game
         if self._is_collision_snake2(self.head2):
             self._init_hardcoded_snake()
 
@@ -372,7 +355,6 @@ class SnakeEnv(gym.Env):
             pygame.draw.rect(self.display, GREEN, (bomb.x, bomb.y, BLOCK_SIZE, BLOCK_SIZE))
 
         pygame.draw.rect(self.display, RED, (self.food.x, self.food.y, BLOCK_SIZE, BLOCK_SIZE))
-        # <-- Draw hardcoded snake (snake2) in YELLOW
         for pt in self.snake2:
             pygame.draw.rect(self.display, YELLOW, (pt.x, pt.y, BLOCK_SIZE, BLOCK_SIZE))
             
@@ -405,13 +387,13 @@ class SnakeEnv(gym.Env):
         danger_left     = 1 if self._will_collide_if_action(2) else 0
         
         snake_len = len(self.snake) / 100.0
-        env_snake_dir_normalized = 0.0  # placeholder
+        env_snake_dir_normalized = 0.0 
 
         state = np.array([
             dx_food, dy_food,
             dx_bomb, dy_bomb,
             dir_r, dir_l, dir_u, dir_d,
-            0.0, 0.0,                  # env_dx, env_dy (unused)
+            0.0, 0.0,                  
             danger_straight, danger_right, danger_left,
             snake_len,
             env_snake_dir_normalized
@@ -458,17 +440,13 @@ class SnakeEnv(gym.Env):
         log_score(f"Video saved: {filename}")
 
 if __name__ == "__main__":
-    # Create environment
     env = SnakeEnv(render_mode=True)
     env = Monitor(env)                 # Logs episodes
     env = DummyVecEnv([lambda: env])   # Vectorize
 
-    # You can keep VecNormalize if you like, but usually it's more common for on-policy.
-    # It's optional. If performance is weird, remove it.
+ 
     env = VecNormalize(env, norm_obs=True, norm_reward=True, clip_obs=10.)
 
-    # ======== SWITCH FROM PPO TO QR-DQN HERE ======== #
-    # Typical DQN/QR-DQN hyperparams, adjust to taste
     model = QRDQN(
         "MlpPolicy",
         env,

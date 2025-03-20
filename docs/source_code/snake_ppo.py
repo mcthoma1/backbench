@@ -14,7 +14,6 @@ import cv2
 from datetime import datetime
 import math
 
-# Helper function for logging
 def log_score(message, log_file="ppo_ultimate_final.txt"):
     timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     log_message = f"{timestamp} - {message}\n"
@@ -28,17 +27,17 @@ LEARNING       = 0.0003
 CLIP           = 0.2
 ENT_COEF       = 0.03
 BLOCK_SIZE     = 20
-SPEED          = float('inf')   # For training speed
-RECORD_SPEED   = 10000          # For recording videos
+SPEED          = float('inf')  
+RECORD_SPEED   = 10000          
 
 # Colors
-WHITE  = (255, 255, 255)  # For text
-RED    = (200, 0, 0)      # Food
-BLUE1  = (0, 0, 255)      # Main snake outer block
-BLUE2  = (0, 100, 255)    # Main snake inner block
+WHITE  = (255, 255, 255)  
+RED    = (200, 0, 0)      
+BLUE1  = (0, 0, 255)     
+BLUE2  = (0, 100, 255)   
 BLACK  = (0, 0, 0)
-GREEN  = (0, 255, 0)      # Bombs
-YELLOW = (255, 255, 0)    # Secondary snake
+GREEN  = (0, 255, 0)     
+YELLOW = (255, 255, 0)   
 
 # Directions
 class Direction(Enum):
@@ -47,7 +46,6 @@ class Direction(Enum):
     UP    = 3
     DOWN  = 4
 
-# Basic point class for grid coordinates
 class Point:
     def __init__(self, x, y):
         self.x = x
@@ -70,7 +68,6 @@ class SnakeEnv(gym.Env):
         self.action_space = spaces.Discrete(3)
         self.observation_space = spaces.Box(low=-1, high=1, shape=(15,), dtype=np.float32)
 
-        # Initialize pygame and window
         pygame.init()
         self.font = pygame.font.SysFont('arial', 25)
         self.display = pygame.display.set_mode((self.w, self.h))
@@ -80,17 +77,13 @@ class SnakeEnv(gym.Env):
         # Video folder
         os.makedirs("ultimate_final_snake_videos", exist_ok=True)
 
-        # Bomb management
         self.num_bombs = 1
 
-        # Tracking best score and video
         self.best_score = float('-inf')
         self.best_video_filename = None
 
-        # Keep track of episodes
         self.episode_count = 0
 
-        # Store frames for every episode
         self.temp_frames = []
 
         self.episode_scores = []
@@ -98,34 +91,26 @@ class SnakeEnv(gym.Env):
         self.reset()
 
     def reset(self, *, seed=None, options=None):
-        # If this isn't the very first episode, log the previous episode's score and
-        # decide if we should save the video.
         if hasattr(self, "score"):
             self.episode_scores.append(self.score)
             log_score(f"Episode ended with score: {self.score}, total bombs: {self.num_bombs}")
 
-            # Save the video if:
-            #   1) It's the 30th episode (multiple of 30), or
-            #   2) The score is better than our best_score so far
+           
             if (self.score > self.best_score):
                 saved_filename = self._save_video(self.temp_frames, self.score)
                 
-                # If this episode sets a new high score, update best_score and best_video_filename
                 if self.score > self.best_score:
                     self.best_score = self.score
                     self.best_video_filename = saved_filename
 
-            # Clear frames for the next episode
             self.temp_frames = []
 
         if seed is not None:
             random.seed(seed)
             np.random.seed(seed)
 
-        # Increase episode count after handling the previous one
         self.episode_count += 1
 
-        # Initialize main snake (PPO agent)
         self.direction = Direction.RIGHT
         self.head = Point(self.w // 2, self.h // 2)
         self.snake = [
@@ -139,7 +124,6 @@ class SnakeEnv(gym.Env):
         self._place_food()
         self._place_bomb()
 
-        # Initialize the secondary snake (using a modified greedy strategy)
         self._init_hardcoded_snake()
 
         return self._get_observation(), {}
@@ -186,10 +170,8 @@ class SnakeEnv(gym.Env):
         # ----- Secondary Snake Movement -----
         self._move_hardcoded_snake()
 
-        # Update UI
         self._update_ui(SPEED)
 
-        # Capture frame in every step for potential saving
         frame = self.render()
         self.temp_frames.append(frame)
 
@@ -355,7 +337,6 @@ class SnakeEnv(gym.Env):
         if self._is_collision_snake2(self.head2):
             self._init_hardcoded_snake()
 
-    # ----- UI Update -----
     def _update_ui(self, speed=SPEED):
         self.display.fill(BLACK)
         for pt in self.snake:
@@ -422,7 +403,6 @@ class SnakeEnv(gym.Env):
         pt = Point(x, y)
         return self._is_collision(pt)
 
-    # ----- Video Saving -----
     def _save_video(self, frames, score):
         """
         Saves the given frames to an MP4 file and returns the filename.
@@ -466,7 +446,6 @@ if __name__ == "__main__":
     model.save("ppo_ultimate_final")
 
     # Print out the best-case video at the end
-    # (The environment is wrapped; access via env.envs[0] to get the actual SnakeEnv)
     raw_env = env.envs[0]
     if raw_env.best_video_filename is not None:
         print(f"\nBest video file: {raw_env.best_video_filename} (score = {raw_env.best_score})\n")
