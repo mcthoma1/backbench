@@ -101,13 +101,16 @@ In our PPO approach, we observed that the model’s improvement plateaued in sta
 
 ### Environments Tested
 #### 1 Bomb Environment  
-<img src="./image/1b_graph.png" alt="1 Bomb Graph" width="300"/>
+<img src="./image/1b_graph.png" alt="1 Bomb Graph" width="300"/><br/>
+<img src="./image/1b_chart.png" alt="1 Bomb Graph" width="300"/>
 
 #### 10 Bombs Environment  
-<img src="./image/10b_graph.png" alt="10 Bombs Graph" width="300"/>
+<img src="./image/10b_graph.png" alt="10 Bombs Graph" width="300"/><br/>
+<img src="./image/10b_chart.png" alt="10 Bombs Graph" width="300"/>
 
 #### 25 Bombs Environment  
-<img src="./image/25b_graph.png" alt="25 Bombs Graph" width="300"/>
+<img src="./image/25b_graph.png" alt="25 Bombs Graph" width="300"/><br/>
+<img src="./image/25b_chart.png" alt="25 Bombs Graph" width="300"/>
 
 #### Performance Chart Matrix  
 <img src="./image/chart.png" alt="Performance Chart" width="300"/>
