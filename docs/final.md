@@ -41,11 +41,12 @@ QRDQN improves on the regular DQN in the sens that, instead of predicting on a s
 ***It's to be noted that we used the same parameters for QRDQN and DQN so it's essentially dqn but improved.***
 
 ### Proximal Policy Optimization (PPO):
-Proximal Policy Optimization (PPO) is a reinforcement learning algorithm that refines policy learning through a clipped objective function, balancing exploration and exploitation. It is well-suited for our dynamic Snake game environments, bomb count scales with performance and a competitive snake introduces unpredictability, since it ensures stability and adaptability while maintaining sample efficiency.
+Proximal Policy Optimization (PPO) is a reinforcement learning algorithm that learns based on a policy through a clipped-objective function with an exploration. It is well-suited for our dynamic Snake game environments, where the bomb count scales with the length of the snake and another snake as a competitor since it ensures stability and adaptability while maintaining sample efficiency.
 
-In our implementation, we trained QRDQN and PPO under two different reward schemes: **static rewards** and **dynamic rewards**. The **static reward** model assigns fixed values for each event: +10 for eating food and −10 for penalty (i.e. collision, bomb), regardless of the snake’s length. This ensures a straightforward, predictable learning objective, making it easier to tune hyperparameters. However, a potential downside is that the agent may learn overly conservative behavior, as it has no incentive to take strategic risks for larger rewards. 
+In our implementation, we trained QRDQN and PPO under two different reward structures: **static reward** and **relative rewards**. 
+First, **static reward structure** assigns fixed values for each event: +10 for eating food and −10 for the penalty (collision and bomb), regardless of the snake’s length. This tells us it is a predictable learning curve and also easier for hyperparameter tuning. A potential downside, however, is that the agent may overlearn behavior on constant and non-fair rewards in different environments.
 
-In contrast, the **dynamic reward** model scales the food reward with the snake’s length, rewarding longer survival and more complex maneuvers. While this encourages more aggressive strategies, it also introduces additional variability in training, as reward magnitudes change over time. This can make hyperparameter tuning more challenging, particularly for learning rate adjustments and exploration strategies. For PPO, this is a reliable aspect since the algorithm relies heavily on the reward policy. 
+Second, **relative reward structure** scales the food reward based on the length of the snake, rewarding longer survival and more complex movements. While this encourages flexible and strong strategies, it also gives additional flexibility in model training, as reward magnitudes increase and penalties decrease. This, unfortunately, can make hyperparameter tuning more challenging. However, for PPO, this is a reliable aspect since the algorithm relies heavily on the reward policy. 
 
 ```
 on step(action):
@@ -101,6 +102,22 @@ model = PPO(
     ent_coef=0.3
 )
 
+def step(self, action):
+    #Default Time consume
+    reward =- 0.01
+    #Time Out
+    reward = -10 + e^(0.01*L)
+
+    #Collision
+    reward = -10 *(1-L/768)
+
+    #Food Reward
+    if self.score > 3: reward = +10 * (L + 2B)
+    else reward = +10
+
+    #Bomb
+    if self.num_bombs > 3: reward = -10 + 0.076*L + -0.05B
+    else: reward = -10
 ```
 ## Evaluation
 
