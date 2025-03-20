@@ -121,20 +121,19 @@ def step(self, action):
     else: reward = -10
 ```
 ## Evaluation
+#### DQN: Dyanmic Reward System
+<img src="./image/DQN-DynamicReward.png" alt="DQN with Dyanmic Reward System" width="300"/><br/>
+
+#### QRDQN: Static Reward System
+<img src="./image/QRDQN-StaticReward.png" alt="QRDQN with Static Reward System" width="300"/><br/>
+
+#### DQN: Dyanmic Reward Scheme
+<img src="./image/QRDQN-DynamicReward.png" alt="QRDQN with Dyanmic Reward System" width="300"/><br/>
 
 ## PPO
 In our PPO approach, we observed that the model’s improvement plateaued in static reward structure depending on the environment (*see tensorboard chart below). To address this, we did some experiments to find a fair and compact reward structure suitable for all environment, with a set of tuned hyperparameters.
 
 ### Environments Tested
-
-### DQN: Dyanmic Reward System
-<img src="./image/DQN-DynamicReward.png" alt="DQN with Dyanmic Reward System" width="300"/><br/>
-
-### QRDQN: Static Reward System
-<img src="./image/QRDQN-StaticReward.png" alt="QRDQN with Static Reward System" width="300"/><br/>
-
-### DQN: Dyanmic Reward Scheme
-<img src="./image/QRDQN-DynamicReward.png" alt="QRDQN with Dyanmic Reward System" width="300"/><br/>
 
 #### 1 Bomb Environment  
 <img src="./image/1b_graph.png" alt="1 Bomb Graph" width="300"/><br/>
