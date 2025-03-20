@@ -5,49 +5,41 @@ import random
 import pygame
 import matplotlib.pyplot as plt
 from enum import Enum
-from stable_baselines3 import PPO
+from sb3_contrib import QRDQN  
 from stable_baselines3.common.vec_env import DummyVecEnv, VecNormalize
 from stable_baselines3.common.monitor import Monitor
 import torch
 import os
 import cv2
 from datetime import datetime
-import math
 
-# Helper function for logging
-def log_score(message, log_file="ppo_ultimate_final.txt"):
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    log_message = f"{timestamp} - {message}\n"
-    with open(log_file, "a", encoding="utf-8") as f:
-        f.write(log_message)
+TIME_COMSUME = 0.01
+TIME_STEP = 1000000  # 1M timesteps for training
+BLOCK_SIZE = 20
+SPEED = float('inf')  
+RECORD_SPEED = 10000
+LEARNING = 0.0003  # PPO alsso had 0.0003, but for DQN/QR-DQN.
 
-# Settings and Hyperparameters
-TIME_COMSUME   = 0.01
-TIME_STEP      = 3000000
-LEARNING       = 0.0003
-CLIP           = 0.2
-ENT_COEF       = 0.03
-BLOCK_SIZE     = 20
-SPEED          = float('inf')   # For training speed
-RECORD_SPEED   = 10000          # For recording videos
+WHITE = (255, 255, 255)
+RED   = (200, 0, 0)
+BLUE1 = (0, 0, 255)
+BLUE2 = (0, 100, 255)
+BLACK = (0, 0, 0)
+GREEN = (0, 255, 0)  # bombs
+YELLOW = (255, 255, 0)  # <-- color for second snake
 
-# Colors
-WHITE  = (255, 255, 255)  # For text
-RED    = (200, 0, 0)      # Food
-BLUE1  = (0, 0, 255)      # Main snake outer block
-BLUE2  = (0, 100, 255)    # Main snake inner block
-BLACK  = (0, 0, 0)
-GREEN  = (0, 255, 0)      # Bombs
-YELLOW = (255, 255, 0)    # Secondary snake
-
-# Directions
 class Direction(Enum):
     RIGHT = 1
     LEFT  = 2
     UP    = 3
     DOWN  = 4
 
-# Basic point class for grid coordinates
+def log_score(message, log_file="best_ppo_3b.txt"):
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+    log_message = f"{timestamp} - {message}\n"
+    with open(log_file, "a", encoding="utf-8") as f:
+        f.write(log_message)
+
 class Point:
     def __init__(self, x, y):
         self.x = x
@@ -57,8 +49,13 @@ class Point:
     def __repr__(self):
         return f"Point({self.x}, {self.y})"
 
-# Custom Snake Environment
 class SnakeEnv(gym.Env):
+    """
+    Single-agent snake environment:
+      - 640x480 board
+      - Discrete(3) actions: 0=straight,1=turn-right,2=turn-left
+      - 15-dim observation
+    """
     metadata = {'render.modes': ['human']}
 
     def __init__(self, w=640, h=480, render_mode=False):
@@ -67,65 +64,59 @@ class SnakeEnv(gym.Env):
         self.h = h
         self.render_mode = render_mode
 
+        # 3 discrete actions
         self.action_space = spaces.Discrete(3)
-        self.observation_space = spaces.Box(low=-1, high=1, shape=(15,), dtype=np.float32)
 
-        # Initialize pygame and window
+        # 15-dim observation (user-chosen scaling)
+        self.observation_space = spaces.Box(
+            low=-1, high=1, shape=(15,), dtype=np.float32
+        )
+
+        # initalizise pygame
         pygame.init()
         self.font = pygame.font.SysFont('arial', 25)
         self.display = pygame.display.set_mode((self.w, self.h))
-        pygame.display.set_caption('Snake PPO')
+        pygame.display.set_caption('Snake DQN')
         self.clock = pygame.time.Clock()
 
-        # Video folder
-        os.makedirs("ultimate_final_snake_videos", exist_ok=True)
+        os.makedirs("3b_snake_videos", exist_ok=True)
 
-        # Bomb management
-        self.num_bombs = 1
-
-        # Tracking best score and video
-        self.best_score = float('-inf')
-        self.best_video_filename = None
-
-        # Keep track of episodes
-        self.episode_count = 0
-
-        # Store frames for every episode
-        self.temp_frames = []
-
+        self.num_bombs = 1  
+        self.goal_score = 1
         self.episode_scores = []
+        self.recording = False
+        self.frames = []
         
         self.reset()
 
     def reset(self, *, seed=None, options=None):
-        # If this isn't the very first episode, log the previous episode's score and
-        # decide if we should save the video.
+        if not hasattr(self, "episode_scores"):
+            self.episode_scores = []
+        
+        # Log the previous score if it exists
         if hasattr(self, "score"):
             self.episode_scores.append(self.score)
-            log_score(f"Episode ended with score: {self.score}, total bombs: {self.num_bombs}")
+            if self.score >= self.goal_score:
+                log_score(f"Goal reached with score: {self.score}, bomb++ {self.num_bombs + 1}")
+                self.goal_score = self.score + 1
+                self.num_bombs += 1
+            
+            if len(self.episode_scores) % 30 == 0:
+                avg_score = sum(self.episode_scores[-30:]) / 30
+                highest_score = max(self.episode_scores)
+                log_score(f"Last 30 Episodes Avg Score: {avg_score:.2f}, Highest Score: {highest_score}")
 
-            # Save the video if:
-            #   1) It's the 30th episode (multiple of 30), or
-            #   2) The score is better than our best_score so far
-            if (self.score > self.best_score):
-                saved_filename = self._save_video(self.temp_frames, self.score)
-                
-                # If this episode sets a new high score, update best_score and best_video_filename
-                if self.score > self.best_score:
-                    self.best_score = self.score
-                    self.best_video_filename = saved_filename
-
-            # Clear frames for the next episode
-            self.temp_frames = []
+            # If we were recording, save the video
+            if self.recording and self.frames:
+                self._save_video()
+                self.recording = False
+                self.frames = []
 
         if seed is not None:
             random.seed(seed)
             np.random.seed(seed)
 
-        # Increase episode count after handling the previous one
-        self.episode_count += 1
-
-        # Initialize main snake (PPO agent)
+        # Main snake init
         self.direction = Direction.RIGHT
         self.head = Point(self.w // 2, self.h // 2)
         self.snake = [
@@ -133,13 +124,16 @@ class SnakeEnv(gym.Env):
             Point(self.head.x - BLOCK_SIZE, self.head.y),
             Point(self.head.x - 2 * BLOCK_SIZE, self.head.y)
         ]
+
         self.score = 0
         self.frame_iteration = 0
-
+        
         self._place_food()
-        self._place_bomb()
 
-        # Initialize the secondary snake (using a modified greedy strategy)
+        self.bombs = []
+        self._place_bomb()
+        
+        # <-- Initialize the hardcoded snake (snake2)
         self._init_hardcoded_snake()
 
         return self._get_observation(), {}
@@ -150,58 +144,68 @@ class SnakeEnv(gym.Env):
         terminated = False
         truncated = False
 
-        # ----- Main Snake Movement -----
+        # Move main snake
         self._move(action)
         self.snake.insert(0, self.head)
 
+        # Collision?
         if self._is_collision(self.head):
             terminated = True
             reward = -10
 
+        # Time penalty
         reward -= TIME_COMSUME
+
         if not terminated and self.frame_iteration > 100 * len(self.snake):
             truncated = True
-            reward = -8
+            reward = -10
 
-        # ----- Main Snake Food Consumption -----
+        # Eat food
         if not terminated and not truncated:
             if self.head == self.food:
                 self.score += 1
-                if self.num_bombs < 25:
-                    self.num_bombs += 1
-                    self._add_bomb()
                 reward = 10 * len(self.snake)
                 self._place_food()
             else:
                 self.snake.pop()
 
-        # ----- Main Snake Bomb Collision -----
+        # Check bombs
         if not terminated and not truncated:
             for bomb in self.bombs:
                 if self.head == bomb:
                     terminated = True
-                    reward = -10
+                    reward = -7
                     break
 
-        # ----- Secondary Snake Movement -----
+        # Start recording logic
+        if self.score >= (self.goal_score - 5) and self.score >= 2 and not self.recording:
+            self.recording = True
+            self.frames = []
+
+        # Update UI if recording
+        if self.recording:
+            self._update_ui(RECORD_SPEED)
+            frame = self.render()
+            self.frames.append(frame)
+
+        # End of episode => maybe save video
+        if (terminated or truncated) and self.recording:
+            if self.score >= self.goal_score:  
+                self._save_video()
+            self.recording = False
+            self.frames = []
+
+        # <-- Update hardcoded snake (snake2) after main snake logic
         self._move_hardcoded_snake()
-
-        # Update UI
-        self._update_ui(SPEED)
-
-        # Capture frame in every step for potential saving
-        frame = self.render()
-        self.temp_frames.append(frame)
 
         obs = self._get_observation()
         return obs, float(reward), terminated, truncated, {}
 
     def render(self, mode="rgb_array"):
         frame = pygame.surfarray.array3d(self.display)
-        frame = np.transpose(frame, (1, 0, 2))
+        frame = np.transpose(frame, (1, 0, 2))  # (H, W, C)
         return frame
 
-    # ----- Main Snake Movement Helper -----
     def _move(self, action):
         clock_wise = [Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.UP]
         idx = clock_wise.index(self.direction)
@@ -225,16 +229,13 @@ class SnakeEnv(gym.Env):
             y -= BLOCK_SIZE
         self.head = Point(x, y)
 
-    # ----- Food and Bomb Placement -----
     def _place_food(self):
-        x = random.randint(0, (self.w - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
-        y = random.randint(0, (self.h - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
+        x = random.randint(0, (self.w - BLOCK_SIZE)//BLOCK_SIZE) * BLOCK_SIZE
+        y = random.randint(0, (self.h - BLOCK_SIZE)//BLOCK_SIZE) * BLOCK_SIZE
         self.food = Point(x, y)
-        while (self.food in self.snake or 
-               (hasattr(self, 'bombs') and self.food in self.bombs) or 
-               (hasattr(self, 'snake2') and self.food in self.snake2)):
-            x = random.randint(0, (self.w - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
-            y = random.randint(0, (self.h - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
+        while (self.food in self.snake or (hasattr(self, 'bombs') and self.food in self.bombs)):
+            x = random.randint(0, (self.w - BLOCK_SIZE)//BLOCK_SIZE) * BLOCK_SIZE
+            y = random.randint(0, (self.h - BLOCK_SIZE)//BLOCK_SIZE) * BLOCK_SIZE
             self.food = Point(x, y)
 
     def _place_bomb(self):
@@ -244,19 +245,11 @@ class SnakeEnv(gym.Env):
                 x = random.randint(0, (self.w - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
                 y = random.randint(0, (self.h - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
                 bomb = Point(x, y)
-                if bomb not in self.snake and bomb != self.food and (not hasattr(self, 'snake2') or bomb not in self.snake2):
-                    self.bombs.append(bomb)
-                    break
-
-    def _add_bomb(self):
-        if self.num_bombs > len(self.bombs):
-            while True:
-                x = random.randint(0, (self.w - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
-                y = random.randint(0, (self.h - BLOCK_SIZE) // BLOCK_SIZE) * BLOCK_SIZE
-                bomb = Point(x, y)
-                if (bomb not in self.snake and bomb != self.food and 
-                    (not hasattr(self, 'snake2') or bomb not in self.snake2) and 
-                    bomb not in self.bombs):
+                while (bomb in self.snake or (hasattr(self, 'food') and bomb == self.food)):
+                    x = random.randint(0, (self.w - BLOCK_SIZE)//BLOCK_SIZE) * BLOCK_SIZE
+                    y = random.randint(0, (self.h - BLOCK_SIZE)//BLOCK_SIZE) * BLOCK_SIZE
+                    bomb = Point(x, y)
+                if bomb not in self.snake and bomb != self.food:
                     self.bombs.append(bomb)
                     break
 
@@ -269,7 +262,7 @@ class SnakeEnv(gym.Env):
             return True
         return False
 
-    # ----- Secondary Snake (Hardcoded Greedy Snake) Methods -----
+    # <-- New method: Initialize the hardcoded snake (snake2)
     def _init_hardcoded_snake(self):
         self.head2 = Point(BLOCK_SIZE * 5, BLOCK_SIZE * 5)
         self.snake2 = [
@@ -279,11 +272,13 @@ class SnakeEnv(gym.Env):
         ]
         self.direction2 = Direction.RIGHT
 
+    # <-- New method: Collision check for snake2
     def _is_collision_snake2(self, pt):
         if pt.x > self.w - BLOCK_SIZE or pt.x < 0 or pt.y > self.h - BLOCK_SIZE or pt.y < 0:
             return True
         if pt in self.snake2[1:]:
             return True
+        # Also avoid colliding with the main snake and bombs
         if pt in self.snake:
             return True
         for bomb in self.bombs:
@@ -291,15 +286,11 @@ class SnakeEnv(gym.Env):
                 return True
         return False
 
+    # <-- New method: Hardcoded snake2 movement (a simple greedy strategy)
     def _move_hardcoded_snake(self):
-        """
-        Modified greedy strategy:
-        - Computes all safe moves.
-        - With a 30% chance, selects a random safe move (dumbing it down slightly).
-        - Otherwise, chooses the move that minimizes the Manhattan distance to the food.
-        """
         possible_actions = [0, 1, 2]  # 0: straight, 1: right, 2: left
-        safe_actions = []
+        best_action = None
+        best_distance = float('inf')
         clock_wise = [Direction.RIGHT, Direction.DOWN, Direction.LEFT, Direction.UP]
         idx = clock_wise.index(self.direction2)
         for action in possible_actions:
@@ -322,10 +313,12 @@ class SnakeEnv(gym.Env):
             new_pt = Point(x, y)
             if not self._is_collision_snake2(new_pt):
                 dist = abs(self.food.x - new_pt.x) + abs(self.food.y - new_pt.y)
-                safe_actions.append((action, new_dir, new_pt, dist))
-
-        if not safe_actions:
-            action = 0
+                if dist < best_distance:
+                    best_distance = dist
+                    best_action = action
+        # If no safe action, default to straight
+        if best_action is None:
+            best_action = 0
             new_dir = clock_wise[idx]
             x = self.head2.x
             y = self.head2.y
@@ -339,33 +332,50 @@ class SnakeEnv(gym.Env):
                 y -= BLOCK_SIZE
             best_new_head = Point(x, y)
         else:
-            if random.random() < 0.3:
-                chosen = random.choice(safe_actions)
+            if best_action == 0:
+                new_dir = clock_wise[idx]
+            elif best_action == 1:
+                new_dir = clock_wise[(idx + 1) % 4]
             else:
-                chosen = min(safe_actions, key=lambda x: x[3])
-            action, new_dir, best_new_head, _ = chosen
+                new_dir = clock_wise[(idx - 1) % 4]
+            x = self.head2.x
+            y = self.head2.y
+            if new_dir == Direction.RIGHT:
+                x += BLOCK_SIZE
+            elif new_dir == Direction.LEFT:
+                x -= BLOCK_SIZE
+            elif new_dir == Direction.DOWN:
+                y += BLOCK_SIZE
+            elif new_dir == Direction.UP:
+                y -= BLOCK_SIZE
+            best_new_head = Point(x, y)
             self.direction2 = new_dir
 
         self.head2 = best_new_head
         self.snake2.insert(0, self.head2)
         if self.head2 == self.food:
+            # If snake2 gets the food, leave its tail and place new food
             self._place_food()
         else:
             self.snake2.pop()
+        # If snake2 somehow collides, reinitialize it to keep it in the game
         if self._is_collision_snake2(self.head2):
             self._init_hardcoded_snake()
 
-    # ----- UI Update -----
     def _update_ui(self, speed=SPEED):
         self.display.fill(BLACK)
         for pt in self.snake:
             pygame.draw.rect(self.display, BLUE1, (pt.x, pt.y, BLOCK_SIZE, BLOCK_SIZE))
-            pygame.draw.rect(self.display, BLUE2, (pt.x + 4, pt.y + 4, 12, 12))
+            pygame.draw.rect(self.display, BLUE2, (pt.x+4, pt.y+4, 12, 12))
+        
         for bomb in self.bombs:
             pygame.draw.rect(self.display, GREEN, (bomb.x, bomb.y, BLOCK_SIZE, BLOCK_SIZE))
+
         pygame.draw.rect(self.display, RED, (self.food.x, self.food.y, BLOCK_SIZE, BLOCK_SIZE))
+        # <-- Draw hardcoded snake (snake2) in YELLOW
         for pt in self.snake2:
             pygame.draw.rect(self.display, YELLOW, (pt.x, pt.y, BLOCK_SIZE, BLOCK_SIZE))
+            
         text = self.font.render("Score: " + str(self.score), True, WHITE)
         self.display.blit(text, [0, 0])
         pygame.display.flip()
@@ -374,26 +384,34 @@ class SnakeEnv(gym.Env):
     def _get_observation(self):
         dx_food = (self.food.x - self.head.x) / float(self.w)
         dy_food = (self.food.y - self.head.y) / float(self.h)
+
+        # nearest bomb
         if self.bombs:
             nearest_bomb = min(self.bombs, key=lambda b: abs(b.x - self.head.x) + abs(b.y - self.head.y))
             dx_bomb = (nearest_bomb.x - self.head.x) / float(self.w)
             dy_bomb = (nearest_bomb.y - self.head.y) / float(self.h)
         else:
-            dx_bomb, dy_bomb = 0.0, 0.0
+            dx_bomb = 0.0
+            dy_bomb = 0.0
+        
         dir_r = 1 if self.direction == Direction.RIGHT else 0
         dir_l = 1 if self.direction == Direction.LEFT  else 0
         dir_u = 1 if self.direction == Direction.UP    else 0
         dir_d = 1 if self.direction == Direction.DOWN  else 0
+        
+        # Danger checks
         danger_straight = 1 if self._will_collide_if_action(0) else 0
         danger_right    = 1 if self._will_collide_if_action(1) else 0
         danger_left     = 1 if self._will_collide_if_action(2) else 0
+        
         snake_len = len(self.snake) / 100.0
-        env_snake_dir_normalized = 0.0
+        env_snake_dir_normalized = 0.0  # placeholder
+
         state = np.array([
             dx_food, dy_food,
             dx_bomb, dy_bomb,
             dir_r, dir_l, dir_u, dir_d,
-            0.0, 0.0,
+            0.0, 0.0,                  # env_dx, env_dy (unused)
             danger_straight, danger_right, danger_left,
             snake_len,
             env_snake_dir_normalized
@@ -422,53 +440,51 @@ class SnakeEnv(gym.Env):
         pt = Point(x, y)
         return self._is_collision(pt)
 
-    # ----- Video Saving -----
-    def _save_video(self, frames, score):
-        """
-        Saves the given frames to an MP4 file and returns the filename.
-        """
-        if not frames:
-            return None
+    def _save_video(self):
+        if not self.frames:
+            return
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-        filename = f"ultimate_final_snake_videos/snake_score_{score}_{timestamp}.mp4"
-        height, width, layers = frames[0].shape
+        filename = f"3b_snake_videos/snake_score_{self.score}_{timestamp}.mp4"
+        
+        height, width, layers = self.frames[0].shape
         fourcc = cv2.VideoWriter_fourcc(*'mp4v')
         out = cv2.VideoWriter(filename, fourcc, 10.0, (width, height))
-        for frame in frames:
+        
+        for frame in self.frames:
             frame_bgr = cv2.cvtColor(frame, cv2.COLOR_RGB2BGR)
             out.write(frame_bgr)
+        
         out.release()
         log_score(f"Video saved: {filename}")
-        return filename
 
 if __name__ == "__main__":
+    # Create environment
     env = SnakeEnv(render_mode=True)
-    env = Monitor(env)
-    env = DummyVecEnv([lambda: env])
+    env = Monitor(env)                 # Logs episodes
+    env = DummyVecEnv([lambda: env])   # Vectorize
+
+    # You can keep VecNormalize if you like, but usually it's more common for on-policy.
+    # It's optional. If performance is weird, remove it.
     env = VecNormalize(env, norm_obs=True, norm_reward=True, clip_obs=10.)
 
-    model = PPO(
+    # ======== SWITCH FROM PPO TO QR-DQN HERE ======== #
+    # Typical DQN/QR-DQN hyperparams, adjust to taste
+    model = QRDQN(
         "MlpPolicy",
         env,
         verbose=1,
         tensorboard_log="./tensorboard_snake/",
-        learning_rate=LEARNING,
-        n_steps=4096,
+        learning_rate=0.0003,
+        buffer_size=100000,
         batch_size=256,
-        n_epochs=10,
-        gamma=0.95,
-        gae_lambda=0.95,
-        clip_range=CLIP,
-        ent_coef=ENT_COEF
+        gamma=0.99,
+        train_freq=4,
+        gradient_steps=1,
+        exploration_fraction=0.1,
+        exploration_final_eps=0.01,
+        target_update_interval=10000, 
     )
 
+    # Train
     model.learn(total_timesteps=TIME_STEP)
-    model.save("ppo_ultimate_final")
-
-    # Print out the best-case video at the end
-    # (The environment is wrapped; access via env.envs[0] to get the actual SnakeEnv)
-    raw_env = env.envs[0]
-    if raw_env.best_video_filename is not None:
-        print(f"\nBest video file: {raw_env.best_video_filename} (score = {raw_env.best_score})\n")
-    else:
-        print("\nNo best video recorded.\n")
+    model.save("best_qrdqn_3b")
