@@ -17,6 +17,7 @@ This is why reinforcement learning algorithms are necessary due to their ability
 
 
 <img src="image.png" alt="Project Screenshot" width="400"/>
+
 Figure 1.0: Picture of how the snake game worked
 - Blue Snake: Agent
 - Yellow Snake: Second Snake (competitor)
