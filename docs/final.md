@@ -47,7 +47,13 @@ In contrast, the **dynamic reward** model scales the food reward with the snakeâ
 
 ```
 on step(action):
-    store the expereience in the buffer
+    store the experience (state, action, reward, next_state, done) in the buffer
+    every 4 steps:
+        sample 256 past experiences from the buffer
+        & train the agen
+
+    every 10,000 steps:
+        update the target Q-network to match the Q-network
     
 model = QR/DQN(
     "MlpPolicy",
@@ -120,4 +126,4 @@ In our PPO approach, we observed that the modelâ€™s improvement plateaued in sta
 - *PyTorch*: used for deep learning of the PPO approach.
 - *Matplotlib*: Helped visualize training performance and results.
 - *TensorBoard*: Used for logging and tracking model improvements.
-- We used AI as a valuable learning source. We used AI models like chatGPT, research papers, and documentations to understand difficult concepts in reinforcement learning, PPO, and DQN/QRDQN, fix errors and issues with our implementation, and improve our approach to solving the problems. It assisted us by allowing us to compare our ideas with other ideas and approaches, explaining complex ideas, and validate our implementations and appraoches. This allowed us to learn and understand how we could better tune our hyperparameters, structure our environments and other parts of the model, and make good decisions on our strategy in the project.  
+- We used AI as a valuable learning resource. We used AI models like chatGPT, research papers, and documentations to understand difficult concepts in reinforcement learning, PPO, and DQN/QRDQN, fix errors and issues with our implementation, and improve our approach to solving the problems. It assisted us by allowing us to compare our ideas with other ideas and approaches, explaining complex ideas, and validate our implementations and appraoches. This allowed us to learn and understand how we could better tune our hyperparameters, structure our environments and other parts of the model, and make good decisions on our strategy in the project.  
