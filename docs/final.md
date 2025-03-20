@@ -23,7 +23,7 @@ Figure 1.0: Picture of how the snake game worked
 
 
 ## Video:
-[![Video Title](https://img.youtube.com/vi/9v9ScqMRHNM/0.jpg)](https://youtu.be/9v9ScqMRHNM)
+[![Video Title](https://img.youtube.com/vi/KmY3JyX5_js/0.jpg)](https://youtu.be/KmY3JyX5_js)
 
 
 
