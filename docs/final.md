@@ -23,13 +23,13 @@ We compare a baseline (PPO with a single bomb) and more advanced approaches, inc
 ## DQN (Deep Q-Network):
 Deep Q-Network (DQN) is a reinforcement learning algorithm that extends Q-learning by using a neural network to approximate the Q-values instead of maintaining a Q-table. This allows DQN to scale to high-dimensional state spaces, making it well-suited for environments like Snake, where the state is represented as a 15-dimensional feature vector rather than a discrete grid. DQN learns the expected cumulative reward for each action and updates its Q-values using experience replay and a target network to stabilize training.
 
-In our implementation, DQN was trained exclusively with a dynamic reward scheme. Unlike a static reward system, where food collection always yields a fixed reward, dynamic rewards scale with the snake’s length. This encourages longer survival and riskier strategies as the game progresses. Specifically, the agent receives:
+Our DQN model was primiarily trained with a dynamic reward scheme. Unlike a static reward system, where food collection always yields a fixed reward, dynamic rewards scale with the snake’s length. This encourages longer survival and riskier strategies as the game progresses. Specifically, the agent receives:
 - +10×snake length for eating food.
 - -10 for collisions (wall, self, or second snake).
 - (−7) for hitting a bomb.
 - A small time penalty to discourage unnecessary delays.
 
-Another key aspect of training was the increasing number of bombs based on the agent’s success. This progressively escalated the difficulty, forcing the model to generalize its policy to handle more obstacles over time. Additionally, a second snake was introduced as a hardcoded competitor, making food collection more competitive. This added another level of environmental complexity.
+Another key aspect of training was the increasing number of bombs based on the agent’s success. This, along with the introduction of a second snake as a hardcoded competitor, made food collection more competitive. This added another level of environmental complexity.
 
 The disadvantage of DQN is that it only estimates a single expected reward. This makes it less robust in environments with high variability, such as ours with dynamic rewards, bombs, and a second snake. Despite this, ut still performed really well and was still comparable to QRDQN. 
 
