@@ -73,6 +73,19 @@ model = QR/DQN(
     target_update_interval=10000, 
 )
 
+dynamic reward:
+    If the snake's head hits something (wall or itself):
+        Game over
+        Give a penalty of -10 points
+    If the snake has been alive too long without progress (over 100 moves per body segment):
+        End the game
+        Give a penalty of -10 points
+    If the game is still going:
+        If the snake's eats the food:
+        Increase score by 1
+        Give a reward of 10 points multiplied by snake length
+        Put food in a new location
+
 model = PPO(
     "MlpPolicy",
     env,
