@@ -44,6 +44,7 @@ QRDQN improves on the regular DQN in the sens that, instead of predicting on a s
 Proximal Policy Optimization (PPO) is a reinforcement learning algorithm that learns based on a policy through a clipped-objective function with an exploration. It is well-suited for our dynamic Snake game environments, where the bomb count scales with the length of the snake and another snake as a competitor since it ensures stability and adaptability while maintaining sample efficiency.
 
 In our implementation, we trained QRDQN and PPO under two different reward structures: **static reward** and **relative rewards**. 
+
 First, **static reward structure** assigns fixed values for each event: +10 for eating food and −10 for the penalty (collision and bomb), regardless of the snake’s length. This tells us it is a predictable learning curve and also easier for hyperparameter tuning. A potential downside, however, is that the agent may overlearn behavior on constant and non-fair rewards in different environments.
 
 Second, **relative reward structure** scales the food reward based on the length of the snake, rewarding longer survival and more complex movements. While this encourages flexible and strong strategies, it also gives additional flexibility in model training, as reward magnitudes increase and penalties decrease. This, unfortunately, can make hyperparameter tuning more challenging. However, for PPO, this is a reliable aspect since the algorithm relies heavily on the reward policy. 
