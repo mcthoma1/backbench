@@ -33,7 +33,6 @@ However, it's to be noted that we used the same parameters as the dqn for this m
 Deep Q-Network (DQN) is a reinforcement learning algorithm that extends Q-learning by using a neural network to approximate the Q-values instead of maintaining a Q-table. This allows DQN to scale to high-dimensional state spaces, making it well-suited for environments like Snake, where the state is represented as a 15-dimensional feature vector rather than a discrete grid. DQN learns the expected cumulative reward for each action and updates its Q-values using experience replay and a target network to stabilize training.
 
 In our implementation, DQN was trained exclusively with a dynamic reward scheme. Unlike a static reward system, where food collection always yields a fixed reward, dynamic rewards scale with the snake’s length. This encourages longer survival and riskier strategies as the game progresses. Specifically, the agent receives:
-- +10×snake length
 - +10×snake length for eating food.
 - -10 for collisions (wall, self, or second snake).
 - (−7) for hitting a bomb.
@@ -42,10 +41,7 @@ In our implementation, DQN was trained exclusively with a dynamic reward scheme.
 Another key aspect of training was the increasing number of bombs based on the agent’s success. This progressively escalated the difficulty, forcing the model to generalize its policy to handle more obstacles over time. Additionally, a second snake was introduced as a hardcoded competitor, making food collection more competitive. This added another level of environmental complexity.
 
 The disadvantage of DQN is that it only estimates a single expected reward. This makes it less robust in environments with high variability, such as ours with dynamic rewards, bombs, and a second snake. Despite this, ut still performed really well and was still comparable to QRDQN. 
-```
-on step(action):
-    store the expereience in the buffer
-    
+```    
 model = DQN(
     "MlpPolicy",
     env,
@@ -61,6 +57,13 @@ model = DQN(
     exploration_final_eps=0.01,
     target_update_interval=10000, 
 )
+
+on step(action):
+    store the experience (state, action, reward, next_state, done) in the buffer
+    every 4 steps:
+        agent trains on 256 past experiences at a time
+    every 10,000 steps:
+        update the target Q-network to match the Q-network
 
 ```
 
