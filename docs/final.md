@@ -17,6 +17,15 @@ The constant evolving dynamics of our environment make the task of getting the f
 
 This is why reinforcement learning algorithms are necessary due to their ability to interact and learn from their environment and adjust their strategies and decisions rather than relying on predefined rules. PPO's incremental decision making policy and DQN's ability to use past interactions with the environment to make future decisions allow them to navgivate and efficiently play the evolving and challenging environment of the snake game. Our approach showcases the ability of these algirthms to excel in complex scenarios and also its capability in solving real world tasks such as autonomous vehicle navigation. 
 
+<img src="image.png" alt="Project Screenshot" width="300"/>
+ 
+ Figure 1.0: Picture of how the snake game worked
+ - Blue Snake: Agent
+ - Yellow Snake: Second Snake (competitor)
+ - Green squares: bombs
+ - Red squares: food
+
+
 ## Aproaches
 We compare a baseline (PPO with a single bomb) and more advanced approaches, including QR-DQN (static vs. dynamic reward) and DQN (dynamic reward). The environment complexity includes a dynamic number of bombs and an additional hardcoded competitive snake.
 
