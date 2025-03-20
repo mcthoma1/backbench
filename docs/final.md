@@ -35,8 +35,8 @@ Deep Q-Network (DQN) is a reinforcement learning algorithm that extends Q-learni
 In our implementation, DQN was trained exclusively with a dynamic reward scheme. Unlike a static reward system, where food collection always yields a fixed reward, dynamic rewards scale with the snake’s length. This encourages longer survival and riskier strategies as the game progresses. Specifically, the agent receives:
 - +10×snake length
 - +10×snake length for eating food.
-− −10 for collisions (wall, self, or second snake).
-− (−7) for hitting a bomb.
+- -10 for collisions (wall, self, or second snake).
+- (−7) for hitting a bomb.
 - A small time penalty to discourage unnecessary delays.
 
 Another key aspect of training was the increasing number of bombs based on the agent’s success. This progressively escalated the difficulty, forcing the model to generalize its policy to handle more obstacles over time. Additionally, a second snake was introduced as a hardcoded competitor, making food collection more competitive. This added another level of environmental complexity.
