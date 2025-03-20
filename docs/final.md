@@ -3,11 +3,6 @@ layout: default
 title: Final Report
 ---
 
-## Video:
-[![Video Title](https://img.youtube.com/vi/9v9ScqMRHNM/0.jpg)](https://youtu.be/9v9ScqMRHNM)
-
-
-
 ## Project Summary:
 The main goal of our project was to find how well Proximal Policy Optimization (PPO) and Deep Q-Network (DQN) handles a evolving and increasing complex environment. We did this by using a classic snake game as the scenario. We chose game as our scenario for reinforcement learning because this is one of our childhood classics and we always wondered if it would be possilbe to have the snake reach the length that covers the whole board. In order to add complexity to see how much we could push the learning algorithms, we modified the environement of the traditional snake game: we had the snake create efficient paths to the food, grow larger, avoid colliding with bombs and also compete with a secondary competitive snake who would compete against the agent for the food and could kill the agent snake if it is bigger that it. 
 
@@ -25,6 +20,12 @@ Figure 1.0: Picture of how the snake game worked
 - Yellow Snake: Second Snake (competitor)
 - Green squares: bombs
 - Red squares: food
+
+
+## Video:
+[![Video Title](https://img.youtube.com/vi/9v9ScqMRHNM/0.jpg)](https://youtu.be/9v9ScqMRHNM)
+
+
 
 ## Aproaches
 We compare a baseline (PPO with a single bomb) and more advanced approaches, including QR-DQN (static vs. dynamic reward) and DQN (dynamic reward). The environment complexity includes a dynamic number of bombs and an additional hardcoded competitive snake.
